@@ -38,38 +38,36 @@ input.split("\n").forEach((line) => {
 function sizeOfDir(dir: string, subDir: string) {
   dirTreeWithSize[subDir].map((e: string) => {
     if (!isNumeric(e)) {
-      if (dirSizeTree[e] === 0) {
-        sizeOfDir(subDir, e);
-      } else if (dirTreeWithSize[subDir].includes(e, 0)) {
-        dirTreeWithSize[subDir] = dirTreeWithSize[subDir].filter(
-          (item) => item !== e
-        );
-        dirSizeTree[subDir] += dirSizeTree[e];
-        dirTreeWithSize[subDir].push(dirSizeTree[e]);
-      }
+      if (dirSizeTree[e] === 0) sizeOfDir(subDir, e);
+      else return;
     }
   });
-}
-const keys = Object.keys(dirTreeWithSize);
-for (let i = keys.length - 1; i >= 0; i--) {
-  dirTreeWithSize[keys[i]].map((subDir: string) => {
-    if (!isNumeric(subDir)) {
-      sizeOfDir(keys[i], subDir);
-    }
-  });
-}
-Object.keys(dirTreeWithSize).forEach((dir) => {
-  dirTreeWithSize[dir].map((subDir: string) => {
-    if (!isNumeric(subDir)) {
-      dirTreeWithSize[dir] = dirTreeWithSize[subDir].filter(
-        (item) => item !== subDir
+  if (dirTreeWithSize[dir].includes(subDir)) {
+    if (dirSizeTree[subDir]) {
+      dirTreeWithSize[dir] = dirTreeWithSize[dir].filter(
+        (item: string) => item !== subDir
       );
       dirSizeTree[dir] += dirSizeTree[subDir];
-      dirTreeWithSize[subDir].push(dirSizeTree[subDir]);
+      dirTreeWithSize[dir].push(dirSizeTree[subDir]);
     }
-  });
-});
+  }
+}
+//traverse
+const keys = Object.keys(dirTreeWithSize);
+for (let i = 0; i < dirTreeWithSize["/"].length; i++) {
+  for (let i = 0; i < keys.length; i++) {
+    dirTreeWithSize[keys[i]].map((subDir: string) => {
+      if (!isNumeric(subDir)) {
+        sizeOfDir(keys[i], subDir);
+      }
+    });
+  }
+}
 Object.keys(dirSizeTree).forEach((key) => {
+  dirSizeTree[key] = 0;
+  dirTreeWithSize[key].map((fileSize: string) => {
+    dirSizeTree[key] += +fileSize;
+  });
   if (dirSizeTree[key] < 100000) {
     answer += dirSizeTree[key];
   }
@@ -78,13 +76,17 @@ Object.keys(dirSizeTree).forEach((key) => {
 const rootDirSize = dirSizeTree["/"];
 let childDirSize = 0;
 Object.keys(dirSizeTree).forEach((key) => {
-  if (dirSizeTree[key] === "/") return;
+  if (key === "/") return;
   else {
     childDirSize += dirSizeTree[key];
   }
 });
-console.log(rootDirSize === childDirSize);
+console.log(
+  `rootDir size :${rootDirSize} , childDir size : ${childDirSize} , conditionMet? : ${
+    rootDirSize >= childDirSize
+  }`
+);
 console.log(dirTree);
 console.log(dirTreeWithSize);
 console.log(dirSizeTree);
-// console.log(answer);
+console.log(answer);
