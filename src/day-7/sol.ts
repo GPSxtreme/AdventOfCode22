@@ -1,5 +1,3 @@
-import { dir } from "console";
-
 const input = require("fs").readFileSync("./input.txt", "utf-8") as string;
 //variables
 const dirOrder: string[] = [];
@@ -38,15 +36,13 @@ input.split("\n").forEach((line) => {
   }
 });
 //recursive function to find size of dir
-function sizeOfDir(dir: string, subDir: string) {
-  let hasNoDirs = false;
+function sizeOfDir(dir: string, subDir: string): void {
   dirTreeWithSize[subDir].map((e: string) => {
     if (!isNumeric(e)) {
-      hasNoDirs = false;
-      if (dirSizeTree[subDir] === 0) return sizeOfDir(subDir, e);
-    } else hasNoDirs = true;
+      sizeOfDir(subDir, e);
+    }
   });
-  if (hasNoDirs && dirTreeWithSize[dir].includes(subDir)) {
+  if (dirTreeWithSize[dir].includes(subDir)) {
     dirTreeWithSize[subDir].map((e: string) => {
       dirSizeTree[subDir] += +e;
     });
@@ -54,35 +50,24 @@ function sizeOfDir(dir: string, subDir: string) {
       (item: string) => item !== subDir
     );
     dirTreeWithSize[dir].push(dirSizeTree[subDir]);
+    return;
   }
 }
 //traverse
 const dirs = Object.keys(dirTree);
-// for (let i = 0; i < dirs.length; i++) {
-//   let hasNoDirs = false;
-//   dirTreeWithSize[dirs[i]].map((subDir: string) => {
-//     if (!isNumeric(subDir)) {
-//       hasNoDirs = false;
-//       return sizeOfDir(dirs[i], subDir);
-//     } else hasNoDirs = true;
-//   });
-//   if (hasNoDirs) {
-//     dirTreeWithSize[dirs[i]].map((fileSize: string) => {
-//       dirSizeTree[dirs[i]] += +fileSize;
-//     });
-//   }
-// }
-let hasNoDirs = false;
-dirTreeWithSize[dirs[0]].map((subDir: string) => {
-  if (!isNumeric(subDir)) {
-    hasNoDirs = false;
-    return sizeOfDir(dirs[0], subDir);
-  } else hasNoDirs = true;
-});
-if (hasNoDirs) {
-  dirTreeWithSize[dirs[0]].map((fileSize: string) => {
-    dirSizeTree[dirs[0]] += +fileSize;
+for (let i = dirs.length - 1; i >= 0; i--) {
+  let hasNoDirs = true;
+  dirTreeWithSize[dirs[i]].map((subDir: string) => {
+    if (!isNumeric(subDir)) {
+      hasNoDirs = false;
+      sizeOfDir(dirs[i], subDir);
+    }
   });
+  // if (hasNoDirs) {
+  //   dirTreeWithSize[dirs[i]].map((fileSize: string) => {
+  //     dirSizeTree[dirs[i]] += +fileSize;
+  //   });
+  // }
 }
 
 //find total size of each dir and if it is less than 100k add it to result(bottom up)
