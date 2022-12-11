@@ -2,7 +2,7 @@ const input = require("fs").readFileSync("./input.txt", "utf-8") as string;
 //variables
 const dirOrder: string[] = [];
 let pwd: string;
-let allDirs = new Map<string, Array<string | number>>();
+let allDirs = new Map<string, Array<any>>();
 let ansPA = 0;
 //function to check if a char is an integer or not
 //collecting data from input
@@ -56,3 +56,29 @@ for (const [path] of allDirs) {
   if (size < 100000) ansPA += size;
 }
 console.log(`Sum of the total sizes of directories less than 100k: ${ansPA}`);
+
+//part-2
+const TOTAL_STORAGE_SPACE = 70000000;
+const REQUIRED_FREE_SPACE = 30000000;
+let availableStorageSpace = 0;
+const dirsGreaterThanRequired = [];
+let dirSizeTree = new Map<string, number>();
+for (const [path, fileSizes] of allDirs) {
+  let size = 0;
+  for (let i = 0; i < fileSizes.length; i++) {
+    size += fileSizes[i];
+    dirSizeTree.set(path, size);
+  }
+}
+
+availableStorageSpace = TOTAL_STORAGE_SPACE - dirSizeTree.get("/");
+const neededFileSizeToRemove = REQUIRED_FREE_SPACE - availableStorageSpace;
+for (const [path] of allDirs) {
+  if (path === "/") continue;
+  const size = dirSizeTree.get(path);
+  if (size >= neededFileSizeToRemove) dirsGreaterThanRequired.push(size);
+}
+console.log(dirsGreaterThanRequired);
+const minSizeToDel = Math.min(...dirsGreaterThanRequired);
+console.log(minSizeToDel - REQUIRED_FREE_SPACE);
+console.log(`Minimum size of directory to be removed: ${minSizeToDel}`);
